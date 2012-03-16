@@ -1,0 +1,75 @@
+\documentclass[12pt]{article}
+% To be able to use lists with letters instead of numbers
+\usepackage{enumerate}
+% To be able to include graphics and figures
+\usepackage{graphicx}
+% To have 1 inch margins all around
+\usepackage{fullpage}
+% To be able to use commands like \lvert, environments like pmatrix, etc.
+\usepackage{amsmath}
+% To get fancy math fonts (like for the real and complex number sets).
+\usepackage{amsfonts}
+% To get fancy math fonts (like for the real and complex number sets).
+\usepackage{amsfonts}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+
+\DeclareMathOperator{\Real}{Re}
+\DeclareMathOperator{\lap}{\triangle}
+\DeclareMathOperator{\grad}{\nabla}
+\DeclareMathOperator{\thresh}{\eta}
+
+\begin{document}
+
+\providecommand{\norm}[1]{ \left \lVert #1 \right \rVert}
+\providecommand{\abs}[1]{ \left \lvert #1 \right \rvert } 
+\providecommand{\conj}[1]{ \overline{#1} }
+\providecommand{\C}[0]{\mathbb{C}}
+\providecommand{\R}[0]{\mathbb{R}}
+\providecommand{\st}[0]{\left | \right.}
+\providecommand{\iff}[0]{\Leftrightarrow}
+\providecommand{\implies}[0]{\Rightarrow}
+\providecommand{\deriv}[3]{\text{d}^{#3} #1 / \text{d} #2^{#3}}
+\providecommand{\Deriv}[3]{\frac{\text{d}^{#3} #1}{\text{d} #2^{#3}}}
+\providecommand{\Partial}[3]{\frac{\partial^{#3} #1}{\partial #2^{#3}}}
+
+\title{Sparse Signal Recovery using Approximate Message-Passing\\
+EOSC 513 Project Proposal}
+\author{Art Petrenko\\
+71959118\\
+\\
+Instructor: Felix Herrmann}
+\date{March 15, 2012}
+\maketitle
+
+Recovery of sparse signals is a problem faced in many disciplines, including exploration seismology. Iterative soft thresholding (IST) is a less computationally intensive way to solve the problem $Ax = b$ (where $x \in \R^n, b \in \R^N$, $x$ is $k$-sparse, and $n \ll N$), than optimization. However the traditional algorithm,
+\begin{equation}
+\begin{split}
+x_{k+1} &= \thresh_k (A^*r_k + x_k) \\
+r_k &= b - Ax_k
+\label{IST.eq}
+\end{split}
+\end{equation}
+converges in a smaller region of $(\delta,\rho) = (n/N, k/n)$ phase space than optimization methods \cite{Donoho2009}. The authors in \cite{Donoho2009} show that by inclusion of an additive ``approximate message-passing (AMP) term''
+\begin{equation*}
+%\frac{r_{k-1}}{\delta} \frac{1}{N} \sum^N_{i=1} \left(\Partial{\thresh_{k-1}(s)}{s}{}\right), \text{ where } s = A^*r_{k-1} + x_{k-1}
+\frac{r_{k-1}}{n}\norm{x_k}_0
+\end{equation*}
+in the equation for the residual in \ref{IST.eq}, IST can be made to converge in the same region of phase space as optimization methods. The results of including the AMP term in IST have also been demonstrated in \cite{herrmann2012EAGEpmr}. However the connection between message passing and optimization is not clear. In \cite{Montanari2009}, the authors state ``optimization can be reduced to computing max-marginals [of a probability distribution]'', and that finding the mode of a probability distribution that can be written as a product of factors $p(\vec{x}) \cong \prod_{a=1} \psi_a(\vec{x}_{\delta a})$, each depending on a different subset of variables ($\vec{x}_{\delta a})$, is equivalent to minimizing a function that is the sum of terms that depend on the same variable subsets.
+
+In addition to gaining an improved understanding of the connection between AMP and optimization, this project will shed some light on the following questions:
+\begin{itemize}
+\item What happens when AMP is applied to matrices $A$ with non-normalized columns? In \cite{Donoho2009}, the authors mention that Gaussianity of $A$ ``can be relaxed'', but do these non-Gaussian $A$'s still have normalized columns?
+\item How does performance (reduction of SNR, reduction of MSE) behave with respect to the number of matrix-vector products? (A comparison could be made here between AMP and SPG$\ell_1$.)
+\item What is the order of the phase transition from convergent to non-convergent AMP in $(\delta$,$\rho)$ space?
+\item Will the optimal tuning of the soft threshold parameter provided by \cite{Donoho2009} still hold for non-Gaussian matrices?
+\end{itemize}
+
+These questions were gathered from and inspired by classes in EOSC 513, as well as the DNOISE seminars.
+
+Disclaimer: Since I am doing this project both for EOSC 513 and for Michael Friedlander's Numerical Optimization course, this proposal contains some material submitted for that course.
+
+\bibliography{Proposal}{}
+\bibliographystyle{alpha}
+
+\end{document}
