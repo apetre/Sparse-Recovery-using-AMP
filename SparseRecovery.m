@@ -7,7 +7,6 @@
 
 %% Definitions
 
-L0tol = 1e-10;
 maxiter = 1000;
 tol = 1e-6;
 options_spgl1.verbosity = 0;
@@ -17,12 +16,13 @@ options_spgl1.iterations = maxiter;
 % measured data
 N = 1000;
 n = 100;
-k = 5;
+k = 10;
 % undersampling
 delta = n/N;
 % sparsity
 rho = k/n;
 
+% Generate random sparse vector
 x0 = zeros(N,1);
 indices = randperm(N);
 x0(indices(1:k)) = randn(k,1);
@@ -34,64 +34,50 @@ b = A*x0;
 %% Recovery using different methods
 
 % threshold parameter
-lambda = 3;
-s = zeros(maxiter,1);
-norm_r = zeros(maxiter,1);
-norm_x = zeros(maxiter,1);
+lambda = 2;
 
+% Solve
 x_adj = A'*b;
-x_spgl1 = spgl1(A,b,0,tol,[],options_spgl1);
-x_lsqr = lsqr(A,b,tol,maxiter);
-
-x = zeros(N,1);
-r = b - A*x;
-norm_r(1) = norm(r);
-j = 2;
-while(j < maxiter)
-    L0 = norm(double(x>L0tol),1);
-    x = A'*r + x;
-    x_sorted = sort(x,'descend');
-    s(j-1) = x_sorted(n);
-    x = softThresh(x,lambda*s(j-1));
-    r = b - A*x + r/n*L0;
-    norm_r(j) = norm(r);
-    norm_x(j) = norm(x);
-    j = j+1;
-end
-x_ist = x;
+[x_spgl1,~,~,info_spgl1] = spgl1(A,b,0,tol,[],options_spgl1);
+% lsqr uses the relative residual norm as a stopping criterion
+[x_lsqr,~,~,info_lsqr.iter,info_lsqr.r] = lsqr(A,b,tol/norm(b),maxiter);
+[x_ist,info_ist] = ist(A,b,lambda,tol,maxiter);
+[x_amp,info_amp] = ist(A,b,lambda,tol,maxiter,'amp');
 
 % MSE
 mse_adj = mse(x0,x_adj);
 mse_spgl1 = mse(x0,x_spgl1);
 mse_lsqr = mse(x0,x_lsqr);
 mse_ist = mse(x0,x_ist);
+mse_amp = mse(x0,x_amp);
 
 % Plotting results
 figure(1)
 clf;
 set(1,'Name','Sparse Recovery');
 subplot(2,2,1)
-plot(1:N,x_adj,'ko', indices(1:k),x0(indices(1:k)),'ro');
-title('A^{H} b')
+plot(1:N,x_lsqr,'k', indices(1:k),x0(indices(1:k)),'ro');
+title('LSQR Recovery')
 
 subplot(2,2,2)
 plot(1:N,x_spgl1,'k', indices(1:k),x0(indices(1:k)),'ro');
 title('SPGl1 Recovery')
 
 subplot(2,2,3)
-plot(1:N,x_lsqr,'k', indices(1:k),x0(indices(1:k)),'ro');
-title('LSQR Recovery')
+plot(1:N,x_ist,'k', indices(1:k),x0(indices(1:k)),'ro');
+title('IST Recovery')
 
 subplot(2,2,4)
-plot(1:N,x,'k', indices(1:k),x0(indices(1:k)),'ro');
-title('IST Recovery')
+plot(1:N,x_amp,'k', indices(1:k),x0(indices(1:k)),'ro');
+title('AMP Recovery')
 
 figure(2)
 clf;
-set(2,'Name','Norm of residual and iterate');
-loglog(1:j-1,norm_r(1:j-1), 1:j-1,norm_x(1:j-1), 1:j-1,s(1:j-1));
-legend('r','x', 's');
+set(2,'Name','Norm of residual and iterate: IST vs. AMP');
+semilogy(0:info_ist.iter,info_ist.r,'g-',0:info_ist.iter,info_ist.s,'g--',...
+         0:info_amp.iter,info_amp.r,'r-',0:info_amp.iter,info_amp.s,'r--');
+xlabel('Iteration');
+title('Norm of residual and threshold');
+legend('IST ||r||','IST threshold / \lambda', ...
+       'AMP ||r||','AMP threshold / \lambda');
 axis tight
-
-% Raise first figure
-figure(1)
