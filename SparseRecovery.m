@@ -34,7 +34,7 @@ b = A*x0;
 %% Recovery using different methods
 
 % threshold parameter
-lambda = 2;
+lambda = 1;
 
 % Solve
 x_adj = A'*b;
@@ -50,6 +50,13 @@ mse_spgl1 = mse(x0,x_spgl1);
 mse_lsqr = mse(x0,x_lsqr);
 mse_ist = mse(x0,x_ist);
 mse_amp = mse(x0,x_amp);
+
+% Succesful recovery criterion
+suc_adj = DMMsuccess(x0,x_adj);
+suc_spgl1 = DMMsuccess(x0,x_spgl1);
+suc_lsqr = DMMsuccess(x0,x_lsqr);
+suc_ist = DMMsuccess(x0,x_ist);
+suc_amp = DMMsuccess(x0,x_amp);
 
 % Plotting results
 figure(1)

@@ -4,9 +4,7 @@ function [x,info] = ist(A,b,lambda,tol,maxiter,options)
 % INPUTS
 % lambda    The factor multiplying the "threshold" s, however the latter is
 %           defined.
-%
 % tol       The stopping criterion that the 2-norm of the residual must satisfy.
-%
 % maxiter   The maximum number of iterations.
 %
 % OUTPUTS
