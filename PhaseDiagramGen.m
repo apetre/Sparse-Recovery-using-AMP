@@ -3,9 +3,9 @@ tol = 1e-6;
 options_spgl1.verbosity = 0;
 options_spgl1.iterations = maxiter;
 % Number of Monte Carlo runs per point of delta,rho phase space
-MCnum = 2;
-delta = linspace(0.02,0.3,3);
-rho = linspace(0,0.4,10);
+MCnum = 4;
+delta = linspace(0.02,0.9,16);
+rho = linspace(0,0.5,16);
 
 N = 1000;
 lambda = 2.5;
@@ -14,7 +14,6 @@ phaseSpace_spgl1 = zeros(length(delta),length(rho));
 phaseSpace_ist   = zeros(length(delta),length(rho));
 phaseSpace_amp   = zeros(length(delta),length(rho));
 
-tic;
 for j_delta = 1:length(delta)
     for j_rho = 1:length(rho)
         for j_MC = 1:MCnum
@@ -45,30 +44,3 @@ for j_delta = 1:length(delta)
         phaseSpace_amp(j_delta,j_rho)   = phaseSpace_amp(j_delta,j_rho)/MCnum;
     end
 end
-time_elapsed = toc;
-
-%%
-figure(3)
-clf;
-set(3,'Name','Relative Phase Diagrams');
-subplot(2,2,1)
-imagesc(delta,rho,phaseSpace_spgl1')
-set(gca,'YDir','normal')
-xlabel('Undersampling, \delta = n / N');
-ylabel('Sparsity, \rho = k / n');
-colorbar;
-title('SPGl1');
-subplot(2,2,3)
-imagesc(delta,rho,phaseSpace_ist')
-set(gca,'YDir','normal')
-xlabel('Undersampling, \delta = n / N');
-ylabel('Sparsity, \rho = k / n');
-colorbar;
-title('IST');
-subplot(2,2,4)
-imagesc(delta,rho,phaseSpace_amp')
-set(gca,'YDir','normal')
-colorbar
-xlabel('Undersampling, \delta = n / N');
-ylabel('Sparsity, \rho = k / n');
-title('AMP');

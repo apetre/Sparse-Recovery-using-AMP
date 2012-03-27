@@ -31,8 +31,9 @@ end
 
 while(j < maxiter && norm_r > tol)
     if strcmp(options,'amp')
-        L0x = norm(double(x>L0tol),1);
+        L0x = norm(double(abs(x)>L0tol),1);
     end
+    % To make sure you understand the iteration indices: 
     % x_{k+1} = A'*r_k + x_k
     x = A'*r + x;
     x_sorted = sort(x,'descend');
@@ -50,4 +51,3 @@ info.s = info.s(1:j+1);
 info.r = info.r(1:j+1);
 
 end
-
